@@ -16,3 +16,17 @@ export interface IMovie {
   backdrop_path: string
 }
 
+export interface IWatchlistItem extends IMovie {
+  media_type: 'movie' | 'tv';
+  added_at: number;
+}
+
+export interface IWatchlistContext {
+  watchlist: IWatchlistItem[];
+  isInWatchlist: (id: string) => boolean;
+  addToWatchlist: (item: IMovie, mediaType: 'movie' | 'tv') => void;
+  removeFromWatchlist: (id: string) => void;
+  clearWatchlist: () => void;
+  watchlistCount: number;
+}
+
