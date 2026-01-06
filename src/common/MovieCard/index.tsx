@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { FaYoutube } from "react-icons/fa";
+import { FaYoutube, FaBookmark, FaRegBookmark } from "react-icons/fa";
 
 import Image from "../Image";
 import { IMovie } from "@/types";
 import { useMediaQuery } from "usehooks-ts";
+import { useWatchlist } from "@/context/watchlistContext";
 
 const MovieCard = ({
   movie,
@@ -14,6 +15,20 @@ const MovieCard = ({
 }) => {
   const { poster_path, original_title: title, name, id } = movie;
   const isMobile = useMediaQuery("(max-width: 380px)");
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const inWatchlist = isInWatchlist(id);
+
+  const handleWatchlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (inWatchlist) {
+      removeFromWatchlist(id);
+    } else {
+      addToWatchlist(movie, category as 'movie' | 'tv');
+    }
+  };
+
   return (
     <>
       <Link
@@ -29,10 +44,17 @@ const MovieCard = ({
           effect="zoomIn"
         />
 
-        <div className="absolute top-0 left-0 w-[170px]  h-full group-hover:opacity-100 opacity-0 bg-[rgba(0,0,0,0.6)] transition-all duration-300 rounded-lg flex items-center justify-center">
+        <div className="absolute top-0 left-0 w-[170px]  h-full group-hover:opacity-100 opacity-0 bg-[rgba(0,0,0,0.6)] transition-all duration-300 rounded-lg flex flex-col items-center justify-center gap-3">
           <div className="xs:text-[48px] text-[42px] text-[#ff0000] scale-[0.4] group-hover:scale-100 transition-all duration-300 ">
             <FaYoutube />
           </div>
+          <button
+            onClick={handleWatchlistClick}
+            className="xs:text-[48px] text-[42px] text-yellow-400 scale-[0.4] group-hover:scale-100 transition-all duration-300 hover:text-yellow-500"
+            aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+          >
+            {inWatchlist ? <FaBookmark /> : <FaRegBookmark />}
+          </button>
         </div>
       </Link>
 
