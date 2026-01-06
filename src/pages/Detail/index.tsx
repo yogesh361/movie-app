@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { m } from "framer-motion";
 import { useParams } from "react-router-dom";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 
 import { Poster, Loader, Error, Section } from "@/common";
 import { Casts, Videos, Genre } from "./components";
@@ -9,11 +10,13 @@ import { useGetShowQuery } from "@/services/TMDB";
 import { useMotion } from "@/hooks/useMotion";
 import { mainHeading, maxWidth, paragraph } from "@/styles";
 import { cn } from "@/utils/helper";
+import { useWatchlist } from "@/context/watchlistContext";
 
 const Detail = () => {
   const { category, id } = useParams();
   const [show, setShow] = useState<Boolean>(false);
   const { fadeDown, staggerContainer } = useMotion();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
 
   const {
     data: movie,
@@ -55,6 +58,16 @@ const Detail = () => {
     videos,
     credits,
   } = movie;
+
+  const inWatchlist = isInWatchlist(String(id));
+
+  const handleWatchlistClick = () => {
+    if (inWatchlist) {
+      removeFromWatchlist(String(id));
+    } else {
+      addToWatchlist(movie, category as 'movie' | 'tv');
+    }
+  };
 
   const backgroundStyle = {
     backgroundImage: `linear-gradient(to top, rgba(0,0,0), rgba(0,0,0,0.98),rgba(0,0,0,0.8) ,rgba(0,0,0,0.4)),url('https://image.tmdb.org/t/p/original/${posterPath}'`,
@@ -108,6 +121,22 @@ const Detail = () => {
                 {!show ? "show more" : "show less"}
               </button>
             </m.p>
+
+            <m.button
+              variants={fadeDown}
+              onClick={handleWatchlistClick}
+              className="flex items-center gap-2 px-4 py-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-black font-semibold transition-all duration-300 w-fit will-change-transform motion-reduce:transform-none"
+            >
+              {inWatchlist ? (
+                <>
+                  <FaBookmark /> Remove from Watchlist
+                </>
+              ) : (
+                <>
+                  <FaRegBookmark /> Add to Watchlist
+                </>
+              )}
+            </m.button>
 
             <Casts casts={credits?.cast || []} />
           </m.div>
